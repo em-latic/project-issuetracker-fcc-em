@@ -57,9 +57,14 @@ module.exports = function (app) {
       let project = req.params.project;
       //let inputData = req.body;
       
+      // Required Fields:
       const title = req.body.issue_title;
       const text = req.body.issue_text;
       const created_by = req.body.created_by;
+
+      // Optional fields:
+      const assignee = req.body.assigned_to;
+      const status = req.body.status_text;
 
       if(!title || !text || !created_by) {
         res.json({ error: "required field(s) missing" });
@@ -73,9 +78,9 @@ module.exports = function (app) {
         created_on: new Date(),
         updated_on: new Date(),
         created_by: created_by,
-        assigned_to: req.body.assigned_to,
+        assigned_to: assignee || "",
         open: true,
-        status_text: req.body.status_text
+        status_text: status || ""
       }
 
       if(!localProjects[project]) {   //if project does not yet exist, create it
@@ -140,10 +145,11 @@ module.exports = function (app) {
 
     .delete(function (req, res){
       let project = req.params.project;
-      let deleteItemId = req.body._id;
+      let deleteItemId = req.body._id; // || req.query._id 
 
+      console.log('ID', deleteItemId);
       if(!deleteItemId) {
-        res.status(404).json({ error: 'missing _id' });
+        res.json({ error: 'missing _id' }); //.status(404)
         return;
       }
 
@@ -158,8 +164,8 @@ module.exports = function (app) {
 
       if (issueIndex === -1) {
         //return res.status(404).json({ error: 'Item not found' });
-        res.status(404).json({ error: 'could not delete', _id: deleteItemId });
-        console.log('error: Item not found');
+        res.json({ error: 'could not delete', _id: deleteItemId });
+        //console.log(`${deleteItemId} ID, error: Item not found`);
         return;
       }
 
